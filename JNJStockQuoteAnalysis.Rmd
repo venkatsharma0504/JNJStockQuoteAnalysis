@@ -1,0 +1,72 @@
+---
+title: "Stock Quote Analysis"
+author: "Venkat Sharma"
+date: "November 14, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE)
+```
+
+## Introduction
+A stock with a price that fluctuates wildly, hits new highs and lows or moves erratically is considered highly volatile stock. The primary measure of volatility used by traders and analysts is standard deviation. This metric reflects the average amount a stock's price has differed from the mean over a period of time.
+
+## Johnson & Johnson(JNJ) Stock Quote Analysis
+Below procedure outlines the steps to Download the data of Johnson & Johnson(JNJ),Calculates log returns,Calculates volatility measure,Calculates volatility measure with a continuous lookback window.
+
+Below Code imports time series library for time series analysis of JNJ stock quote and downloads the JNJ historical quote data.
+```{r}
+library(tseries)
+JNJData <- get.hist.quote('JNJ', quote = "Close")
+length(JNJData)
+```
+
+Using the above dataset ,now we create a log returns for the dataset, which has a length of 6518.by using time t and t-1 we have decreased the records in the dataset by 1
+```{r}
+JNJRet <- log(lag(JNJData)) - log(JNJData)
+length(JNJRet)
+```
+
+Now we calculate the volatility in percentage, this is the enire volatility, there are roughtly 250 trading days in a year.
+```{r}
+JNJvol <- sd(JNJRet)*sqrt(250)*100
+JNJvol
+```
+
+Now we create a generic function which returns the volatility(variance)  in a continous lookback window way.
+```{r}
+Vol <- function(d, logrets) {
+       var =0
+       lam =0
+       varlist <- c()
+       for (r in logrets) {
+       	    lam = lam*(1-1/d) +1
+       	    var = (1-1/lam)*var + (1/lam)*r^2
+       	    varlist <- c(varlist,var)
+       }
+       sqrt(varlist)
+}
+```
+
+Calculating the estimates with different weights.
+```{r}
+volest1 	<- Vol(10,JNJRet)
+volest2 <- Vol(30,JNJRet)
+volest3 <- Vol(100,JNJRet)
+```
+
+## Plots for estimates of volatility for JNJ
+* Estimate of volatility of JNJ over entire lookback series
+* plot with Changed weights
+
+```{r}
+plot(volest1, type ="l")
+lines(volest2, type = "l", col="red")
+lines(volest3, type = "l", col="blue")
+```
+
+## Conclusion 
+As can be inferred from the plot,changing weights did not change the plot much.Here high peaks or spikes correspond to fluctuations in the JNJ stock quote data.This is the estimate of Volatility.
+As can seen from the plot, there are three major spikes wrt Stock's performance over the period of time, though there is some stability, more or less stock quote JNJ can be categorized as a volatile Stock.
+
