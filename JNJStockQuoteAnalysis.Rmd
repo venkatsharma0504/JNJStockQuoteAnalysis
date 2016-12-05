@@ -1,5 +1,5 @@
 ---
-title: "Stock Quote Analysis"
+title: "Stock Volatilaty Analysis"
 author: "Venkat Sharma"
 date: "November 14, 2016"
 output: html_document
